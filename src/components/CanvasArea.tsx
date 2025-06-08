@@ -1,49 +1,63 @@
-import React, { useEffect, useRef } from 'react';
+// ./src/components/CanvasArea.tsx
+import { useEffect, useRef } from "react";
+import { SimulationEngine, type Particle, type ControlPoint } from "../simulation/SimulationEngine";
 
-const CanvasArea: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+interface CanvasAreaProps {
+  particles: Particle[];
+  interactionMatrix: number[][];
+  controlPoints: ControlPoint[];
+  dt: number;
+  goo: number;
+}
 
-  // Resize canvas to match parent container
+export const CanvasArea: React.FC<CanvasAreaProps> = ({
+  particles,
+  interactionMatrix,
+  controlPoints,
+  dt,
+  goo,
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const engineRef = useRef(new SimulationEngine());
+
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const resizeCanvas = () => {
+    const engine = engineRef.current;
+    engine.setParticles([...particles]); // clone to avoid mutation
+    engine.setInteractionMatrix(interactionMatrix);
+    engine.setControlPoints(controlPoints);
+    engine.setDt(dt);
+    engine.setGoo(goo);
+  }, [particles, interactionMatrix, controlPoints, dt, goo]);
+
+  useEffect(() => {
+    let frameId: number;
+
+    const draw = () => {
+      const canvas = canvasRef.current;
       if (!canvas) return;
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.clientWidth;
-        canvas.height = window.innerHeight - 40; // leave room for margins
-      }
-    };
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    return () => window.removeEventListener('resize', resizeCanvas);
-  }, []);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-  // Simple render loop placeholder
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    let animationFrameId: number;
+      const engine = engineRef.current;
+      engine.step();
+      const simParticles = engine.getParticles();
 
-    const render = () => {
-      if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Placeholder particle (we'll replace this with real particles later)
-      ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height / 2, 10, 0, 2 * Math.PI);
-      ctx.fill();
+      simParticles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x * canvas.width, p.y * canvas.height, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "red"; // TODO: Use particle type color
+        ctx.fill();
+      });
 
-      animationFrameId = requestAnimationFrame(render);
+      frameId = requestAnimationFrame(draw);
     };
 
-    render();
-    return () => cancelAnimationFrame(animationFrameId);
+    frameId = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
-  return <canvas ref={canvasRef} style={{ display: 'block', backgroundColor: 'inherit' }} />;
+  return <canvas ref={canvasRef} width={500} height={500} />;
 };
-
-export default CanvasArea;

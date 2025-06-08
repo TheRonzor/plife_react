@@ -1,5 +1,5 @@
+// ./src/components/InteractionMatrix.tsx
 import React from 'react';
-import './InteractionMatrix.css';
 
 interface ParticleType {
   id: string;
@@ -19,41 +19,54 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
   };
 
   return (
-    <div className="interaction-matrix">
+    <div>
       <label className="form-label">Interaction Matrix</label>
       <div
-        className="matrix-grid"
-        style={{ gridTemplateColumns: `repeat(${types.length + 1}, 60px)` }}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${types.length + 1}, 60px)`,
+          gap: '4px',
+          alignItems: 'center',
+          justifyItems: 'center',
+        }}
       >
-        {/* Top-left empty cell */}
-        <div className="matrix-cell" />
+        {/* Top-left empty corner */}
+        <div />
 
-        {/* Top row headers */}
+        {/* Column headers */}
         {types.map((col) => (
-          <div key={`col-header-${col.id}`} className="matrix-cell">
+          <div key={`col-header-${col.id}`}>
             <div
-              className="particle-preview"
-              style={{ backgroundColor: col.color, width: col.size, height: col.size }}
+              style={{
+                backgroundColor: col.color,
+                width: col.size,
+                height: col.size,
+                borderRadius: '50%',
+              }}
               title={`Type ${col.id}`}
             />
           </div>
         ))}
 
-        {/* Rows */}
+        {/* Matrix body */}
         {types.map((row, i) => (
           <React.Fragment key={`row-${row.id}`}>
-            {/* Left column header */}
-            <div className="matrix-cell">
+            {/* Row header */}
+            <div>
               <div
-                className="particle-preview"
-                style={{ backgroundColor: row.color, width: row.size, height: row.size }}
+                style={{
+                  backgroundColor: row.color,
+                  width: row.size,
+                  height: row.size,
+                  borderRadius: '50%',
+                }}
                 title={`Type ${row.id}`}
               />
             </div>
 
-            {/* Interaction sliders */}
+            {/* Sliders */}
             {types.map((_, j) => (
-              <div key={`cell-${i}-${j}`} className="matrix-cell">
+              <div key={`cell-${i}-${j}`} style={{ width: '100%' }}>
                 <input
                   type="range"
                   min={-1}
@@ -61,6 +74,7 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
                   step={0.01}
                   value={matrix[i][j]}
                   onChange={(e) => handleSliderChange(i, j, parseFloat(e.target.value))}
+                  style={{ width: '100%' }}
                 />
               </div>
             ))}

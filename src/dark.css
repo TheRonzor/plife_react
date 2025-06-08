@@ -1,0 +1,27 @@
+/* dark.css */
+
+:root {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --canvas-bg: #1e1e1e;
+  --border-color: #333;
+}
+
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+canvas {
+  background-color: var(--canvas-bg);
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-color);
+}
+
+input[type="range"] {
+  width: 100%;
+}
