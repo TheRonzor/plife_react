@@ -27,8 +27,6 @@ const ParticleTypeEditor: React.FC<ParticleTypeEditorProps> = ({
 
   return (
     <div>
-      <h5 className="mb-3">Particle Types</h5>
-
       <div
         style={{
           display: 'grid',

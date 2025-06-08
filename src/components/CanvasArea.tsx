@@ -86,7 +86,8 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
             ref={canvasRef} 
             style={{ 
               width: "100%", 
-              aspectRatio: "1 / 1",
+              height: "100%",
+              // aspectRatio: "1 / 1",
               border: "10px solid var(--border-color)",
               display: "block",
               borderRadius: "5px",

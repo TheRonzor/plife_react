@@ -19,8 +19,6 @@ const SimulationControls: React.FC<SimulationControlsProps> = ({
 }) => {
   return (
     <div>
-      <h4 className="mb-3">Simulation Controls</h4>
-
       <div className="mb-3">
         <label className="form-label">Time Step (dt): {dt.toFixed(3)}</label>
         <input
