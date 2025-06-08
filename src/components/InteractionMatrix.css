@@ -1,0 +1,24 @@
+.interaction-matrix {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.matrix-grid {
+  display: grid;
+  gap: 0.5rem;
+  /* gridTemplateColumns is set dynamically inline */
+}
+
+.matrix-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  min-height: 40px;
+}
+
+.particle-preview {
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid #ccc;
+}
