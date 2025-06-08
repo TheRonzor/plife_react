@@ -67,8 +67,15 @@ export class SimulationEngine {
         const fx = dx / dist;
         const fy = dy / dist;
 
+        const r1 = this.controlPoints[1].x;
+        const r3 = this.controlPoints[3].x;
+
+        let interactionScale = 1;
+        if (dist > r1 && dist < r3) {
+          interactionScale = this.interactionMatrix[pi.type]?.[pj.type] ?? 0;
+        }
+        
         const baseForce = this.forceFunction(dist);
-        const interactionScale = this.interactionMatrix[pi.type]?.[pj.type] ?? 0;
         const forceMag = baseForce * interactionScale;
 
         forces[i][0] += forceMag * fx;

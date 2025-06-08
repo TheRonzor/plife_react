@@ -24,13 +24,13 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${types.length + 1}, 60px)`,
-          gap: '4px',
+          gridTemplateColumns: `repeat(${types.length + 1}, 90px)`,
+          gap: '6px',
           alignItems: 'center',
           justifyItems: 'center',
         }}
       >
-        {/* Top-left empty corner */}
+        {/* Top-left corner */}
         <div />
 
         {/* Column headers */}
@@ -48,7 +48,7 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
           </div>
         ))}
 
-        {/* Matrix body */}
+        {/* Rows */}
         {types.map((row, i) => (
           <React.Fragment key={`row-${row.id}`}>
             {/* Row header */}
@@ -64,9 +64,12 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
               />
             </div>
 
-            {/* Sliders */}
+            {/* Matrix sliders with value labels */}
             {types.map((_, j) => (
-              <div key={`cell-${i}-${j}`} style={{ width: '100%' }}>
+              <div key={`cell-${i}-${j}`} style={{ width: '100%', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.8rem', marginBottom: '0.25rem' }}>
+                  {matrix[i][j].toFixed(2)}
+                </div>
                 <input
                   type="range"
                   min={-1}
