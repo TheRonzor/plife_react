@@ -2,12 +2,20 @@
 import { useEffect, useRef } from "react";
 import { SimulationEngine, type Particle, type ControlPoint } from "../simulation/SimulationEngine";
 
+interface ParticleTypeInfo {
+  id: number;
+  color: string;
+  size: number;
+}
+
 interface CanvasAreaProps {
   particles: Particle[];
   interactionMatrix: number[][];
   controlPoints: ControlPoint[];
   dt: number;
   goo: number;
+  isRunning: boolean;
+  particleTypeProperties: ParticleTypeInfo[];
 }
 
 export const CanvasArea: React.FC<CanvasAreaProps> = ({
@@ -16,13 +24,15 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
   controlPoints,
   dt,
   goo,
+  isRunning,
+  particleTypeProperties,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef(new SimulationEngine());
 
   useEffect(() => {
     const engine = engineRef.current;
-    engine.setParticles([...particles]); // clone to avoid mutation
+    engine.setParticles([...particles]); // Clone to avoid mutation
     engine.setInteractionMatrix(interactionMatrix);
     engine.setControlPoints(controlPoints);
     engine.setDt(dt);
@@ -40,15 +50,27 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
       if (!ctx) return;
 
       const engine = engineRef.current;
-      engine.step();
+
+      if (isRunning) {
+        engine.step();
+      }
+
       const simParticles = engine.getParticles();
+
+      // Resize canvas to match its element size
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       simParticles.forEach(p => {
+        const type = particleTypeProperties[p.type];
+        const radius = type?.size ?? 5;
+        const color = type?.color ?? 'red';
+
         ctx.beginPath();
-        ctx.arc(p.x * canvas.width, p.y * canvas.height, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = "red"; // TODO: Use particle type color
+        ctx.arc(p.x * canvas.width, p.y * canvas.height, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
         ctx.fill();
       });
 
@@ -57,7 +79,7 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
 
     frameId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frameId);
-  }, []);
+  }, [isRunning, particleTypeProperties]);
 
-  return <canvas ref={canvasRef} width={500} height={500} />;
+  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
 };

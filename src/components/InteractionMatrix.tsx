@@ -2,7 +2,7 @@
 import React from 'react';
 
 interface ParticleType {
-  id: string;
+  id: number;
   color: string;
   size: number;
 }

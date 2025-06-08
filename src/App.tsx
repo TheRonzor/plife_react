@@ -1,71 +1,104 @@
 // ./src/App.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CanvasArea } from "./components/CanvasArea";
 import ForceEditor from './components/ForceEditor';
 import InteractionMatrix from './components/InteractionMatrix';
+import SimulationControls from './components/SimulationControls';
+import ParticleTypeEditor from './components/ParticleTypeEditor';
 import { type Particle, type ControlPoint } from "./simulation/SimulationEngine";
 
-// Constants
-const NUM_TYPES = 4;
-const PARTICLES_PER_TYPE = 50;
-
-const generateParticles = (): Particle[] => {
-  let particles: Particle[] = [];
-  let id = 0;
-  for (let type = 0; type < NUM_TYPES; type++) {
-    for (let i = 0; i < PARTICLES_PER_TYPE; i++) {
-      particles.push({
-        id: id++,
-        type,
-        x: Math.random(),
-        y: Math.random(),
-        vx: 0,
-        vy: 0,
-      });
-    }
-  }
-  return particles;
-};
-
-const generateInteractionMatrix = (): number[][] => {
-  const matrix: number[][] = [];
-  for (let i = 0; i < NUM_TYPES; i++) {
-    matrix[i] = [];
-    for (let j = 0; j < NUM_TYPES; j++) {
-      matrix[i][j] = parseFloat((Math.random() * 2 - 1).toFixed(2));
-    }
-  }
-  return matrix;
-};
-
 const defaultControlPoints: ControlPoint[] = [
-  { id: 'f0', x: 0, y: -1 },
-  { id: 'r1', x: 0.05, y: 0 },
-  { id: 'f2', x: 0.15, y: 1 },
-  { id: 'r3', x: 0.5, y: 0 },
-];
-
-// TEMP mock type info — this should eventually be editable by user
-const particleTypes = [
-  { id: '0', color: 'red', size: 8 },
-  { id: '1', color: 'green', size: 10 },
-  { id: '2', color: 'blue', size: 12 },
-  { id: '3', color: 'black', size: 15 },
+  { id: 'f0', x: 0, y: -1, fixed: true },
+  { id: 'r1', x: 0.01, y: 0 },
+  { id: 'f2', x: 0.05, y: 1 },
+  { id: 'r3', x: 0.2, y: 0 },
 ];
 
 function App() {
-  const [particles] = useState<Particle[]>(generateParticles);
-  const [interactionMatrix, setInteractionMatrix] = useState<number[][]>(generateInteractionMatrix);
   const [controlPoints, setControlPoints] = useState<ControlPoint[]>(defaultControlPoints);
-  const [dt] = useState(0.01);
-  const [goo] = useState(0.1);
+
+  const [particleTypes, setParticleTypes] = useState(() =>
+    Array.from({ length: 3 }, (_, i) => ({
+      id: i,
+      color: ['#bb3434', '#121212', '#34ff34'][i],
+      size: 10,
+      count: 20,
+    }))
+  );
+
+  const [interactionMatrix, setInteractionMatrix] = useState<number[][]>(
+    Array.from({ length: 3 }, () => Array(3).fill(0))
+  );
+
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  const [dt, setDt] = useState(0.01);
+  const [goo, setGoo] = useState(0.1);
+  const [isRunning, setIsRunning] = useState(true);
+
+  // 🧠 Regenerate particles when types or counts change
+  useEffect(() => {
+    let id = 0;
+    const all: Particle[] = [];
+
+    particleTypes.forEach((type, index) => {
+      for (let i = 0; i < type.count; i++) {
+        all.push({
+          id: id++,
+          type: index,
+          x: Math.random(),
+          y: Math.random(),
+          vx: 0,
+          vy: 0,
+        });
+      }
+    });
+
+    setParticles(all);
+  }, [particleTypes]);
 
   const handleMatrixChange = (row: number, col: number, value: number) => {
     setInteractionMatrix(prev => {
-      const updated = prev.map(row => [...row]);
+      const updated = prev.map(r => [...r]);
       updated[row][col] = value;
       return updated;
     });
+  };
+
+  const addType = () => {
+    if (particleTypes.length >= 20) return;
+    const newId = particleTypes.length;
+    const newTypes = [
+      ...particleTypes,
+      { id: newId, color: '#888888', size: 10, count: 20 },
+    ];
+    setParticleTypes(newTypes);
+
+    setInteractionMatrix(prev => {
+      const next = prev.map(row => [...row, 0]);
+      next.push(new Array(newId + 1).fill(0));
+      return next;
+    });
+  };
+
+  const removeType = (id: number) => {
+    if (particleTypes.length <= 1) return;
+    const index = particleTypes.findIndex(t => t.id === id);
+    const newTypes = particleTypes.filter(t => t.id !== id);
+    setParticleTypes(newTypes);
+
+    setInteractionMatrix(prev => {
+      return prev
+        .filter((_, i) => i !== index)
+        .map(row => row.filter((_, j) => j !== index));
+    });
+  };
+
+  const toggleTheme = () => {
+    const link = document.getElementById("theme-css") as HTMLLinkElement | null;
+    if (!link) return;
+    const isLight = link.href.includes("light.css");
+    link.href = isLight ? "/dark.css" : "/light.css";
   };
 
   return (
@@ -77,16 +110,43 @@ function App() {
           controlPoints={controlPoints}
           dt={dt}
           goo={goo}
+          isRunning={isRunning}
+          particleTypeProperties={particleTypes}
         />
       </div>
       <div style={{ width: "50%", padding: "1rem", overflowY: "auto" }}>
-        <h2>Controls</h2>
-        <ForceEditor points={controlPoints} onChange={setControlPoints} />
+        <button className="btn btn-outline-secondary mb-3" onClick={toggleTheme}>
+          Toggle Theme
+        </button>
+
+        <SimulationControls
+          dt={dt}
+          goo={goo}
+          isRunning={isRunning}
+          onDtChange={setDt}
+          onGooChange={setGoo}
+          onToggleRunning={() => setIsRunning(r => !r)}
+        />
+
         <hr />
+
+        <ForceEditor points={controlPoints} onChange={setControlPoints} />
+
+        <hr />
+
         <InteractionMatrix
           types={particleTypes}
           matrix={interactionMatrix}
           onChange={handleMatrixChange}
+        />
+
+        <hr />
+
+        <ParticleTypeEditor
+          types={particleTypes}
+          onChange={setParticleTypes}
+          onAddType={addType}
+          onRemoveType={removeType}
         />
       </div>
     </div>
