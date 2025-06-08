@@ -61,7 +61,12 @@ export class SimulationEngine {
         const pj = this.particles[j];
 
         const [dx, dy] = this.torusVector(pi.x, pi.y, pj.x, pj.y);
+        
+        // Different distance functions here for now!
         const dist = Math.sqrt(dx * dx + dy * dy);
+        //const dist = Math.abs(dx * dx + dy * dy);
+        // const dist = dx * dx + dy * dy;
+        
         if (dist === 0) continue;
 
         const fx = dx / dist;
@@ -69,15 +74,10 @@ export class SimulationEngine {
 
         const r1 = this.controlPoints[1].x;
         const r3 = this.controlPoints[3].x;
-
-        let interactionScale = 1;
-        if (dist > r1 && dist < r3) {
-          interactionScale = this.interactionMatrix[pi.type]?.[pj.type] ?? 0;
-        }
-        
         const baseForce = this.forceFunction(dist);
-        const forceMag = baseForce * interactionScale;
 
+        const interactionScale = (r1 < dist && dist < r3) ? this.interactionMatrix[pi.type]?.[pj.type] ?? 0 : 1;
+        const forceMag = baseForce * interactionScale;
         forces[i][0] += forceMag * fx;
         forces[i][1] += forceMag * fy;
       }

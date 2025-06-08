@@ -81,5 +81,16 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
     return () => cancelAnimationFrame(frameId);
   }, [isRunning, particleTypeProperties]);
 
-  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+  // return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+  return <canvas 
+            ref={canvasRef} 
+            style={{ 
+              width: "100%", 
+              aspectRatio: "1 / 1",
+              border: "10px solid var(--border-color)",
+              display: "block",
+              borderRadius: "5px",
+              backgroundColor: '#000000'
+            }}
+          />;
 };

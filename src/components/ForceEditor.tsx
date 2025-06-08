@@ -139,7 +139,7 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
 
   return (
     <div>
-      <label className="form-label">Global Force Function</label>
+      <h5 className="form-label">Global Force Function</h5>
       <canvas
         ref={canvasRef}
         onMouseDown={handleMouseDown}

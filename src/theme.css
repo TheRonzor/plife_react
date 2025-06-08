@@ -1,11 +1,10 @@
-/* dark.css */
+/* light.css */
 
 :root {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --canvas-bg: #1e1e1e;
-  --border-color: #333;
-  --fg-color: #bb3434;
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --canvas-bg: #f8f9fa;
+  --border-color: #4c4c4c;
 }
 
 body {

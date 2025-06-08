@@ -20,7 +20,6 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
 
   return (
     <div>
-      <label className="form-label">Interaction Matrix</label>
       <div
         style={{
           display: 'grid',
