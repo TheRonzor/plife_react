@@ -6,6 +6,12 @@ import SimulationControls from './components/SimulationControls';
 import ParticleTypeEditor from './components/ParticleTypeEditor';
 import { type Particle, type ControlPoint } from "./simulation/SimulationEngine";
 
+// For initialiation, not yet implemented
+// const INIT_NUM_TYPES = 20;
+// const MAX_NUM_TYPES = 100;
+// const INIT_NUM_EACH = 50;
+
+
 const defaultControlPoints: ControlPoint[] = [
   { id: 'f0', x: 0, y: -1, fixed: true },
   { id: 'r1', x: 0.05, y: 0 },
@@ -24,11 +30,9 @@ function App() {
       count: 20,
     }))
   );
-
   const [interactionMatrix, setInteractionMatrix] = useState<number[][]>(
     Array.from({ length: 3 }, () => Array(3).fill(0))
   );
-
   const [particles, setParticles] = useState<Particle[]>([]);
   const [dt, setDt] = useState(0.01);
   const [goo, setGoo] = useState(0.1);
