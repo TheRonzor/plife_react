@@ -96,7 +96,8 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
 
-    const updated = points.map((p, i, arr) => {
+    //const updated = points.map((p, i, arr) => {
+    const updated = points.map((p, _, arr) => {
       if (p.id !== dragId) return p;
 
       // Determine editable axes

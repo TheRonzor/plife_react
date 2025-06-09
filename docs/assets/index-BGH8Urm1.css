@@ -1,0 +1,1 @@
+:root{--bg-color: #ffffff;--text-color: #212529;--canvas-bg: #f8f9fa;--border-color: #4c4c4c}body{margin:0;font-family:Helvetica Neue,Helvetica,Arial,sans-serif;background-color:var(--bg-color);color:var(--text-color)}canvas{background-color:var(--canvas-bg);display:block;width:100%;height:auto;border:1px solid var(--border-color)}input[type=range]{width:100%}

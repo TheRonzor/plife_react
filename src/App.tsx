@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+// import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CanvasArea } from "./components/CanvasArea";
 import ForceEditor from './components/ForceEditor';
 import InteractionMatrix from './components/InteractionMatrix';
