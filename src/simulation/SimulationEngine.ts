@@ -50,7 +50,8 @@ export class SimulationEngine {
 
   step() {
     const N = this.particles.length;
-    const forces: [number, number][] = Array(N).fill([0, 0]).map(() => [0, 0]);
+    //const forces: [number, number][] = Array(N).fill([0, 0]).map(() => [0, 0]);
+    const forces: [number, number][] = Array.from({ length: N }, () => [0, 0]);
 
     for (let i = 0; i < N; i++) {
       const pi = this.particles[i];

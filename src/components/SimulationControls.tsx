@@ -1,3 +1,4 @@
+// ./src/components/SimulationControls.tsx
 import React from 'react';
 
 interface SimulationControlsProps {

@@ -1,3 +1,4 @@
+// ./src/components/ForceEditor.tsx
 import React, { useEffect, useRef, useState } from 'react';
 
 export interface ControlPoint {

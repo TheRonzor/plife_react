@@ -1,4 +1,5 @@
-// import React, { useEffect, useState } from 'react';
+// ./src/App.tsx
+
 import { useEffect, useState } from 'react';
 import { CanvasArea } from "./components/CanvasArea";
 import ForceEditor from './components/ForceEditor';
@@ -38,6 +39,7 @@ function App() {
   const [dt, setDt] = useState(0.01);
   const [goo, setGoo] = useState(0.1);
   const [isRunning, setIsRunning] = useState(true);
+  const [nextId, setNextId] = useState(3);
 
   useEffect(() => {
     setParticles(prev => {
@@ -89,7 +91,8 @@ function App() {
 
   const addType = () => {
     if (particleTypes.length >= 20) return;
-    const newId = particleTypes.length;
+    const newId = nextId;
+    setNextId(id => id + 1);
 
     const randomChannel = () => Math.floor(128 + Math.random() * 127);
     const toHex = (n: number) => n.toString(16).padStart(2, '0');

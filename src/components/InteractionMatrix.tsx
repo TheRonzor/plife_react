@@ -18,6 +18,13 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
     onChange(row, col, value);
   };
 
+  //====
+  console.log(matrix.length);
+  console.log(matrix[0].length);
+  console.log(matrix);
+  console.log(types);
+  //====
+
   return (
     <div>
       <div
