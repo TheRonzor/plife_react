@@ -22,15 +22,15 @@ function App() {
   const [particleTypes, setParticleTypes] = useState(() =>
     Array.from({ length: 3 }, (_, i) => ({
       id: i,
-      color: ['#ff4d4d', '#4dff4d', '#4d4dff'][i],
-      size: 10,
-      count: 20,
+      color: ['#ff4d4d', '#c5c515', '#4d4dff'][i],
+      size: [2, 5, 15][i],
+      count: [200, 100, 10][i],
     }))
   );
   const [interactionMatrix, setInteractionMatrix] = useState<Record<number, Record<number, number>>>({
-    0: { 0: 0, 1: 0, 2: 0 },
-    1: { 0: 0, 1: 0, 2: 0 },
-    2: { 0: 0, 1: 0, 2: 0 },
+    0: { 0: 0, 1: 0, 2: 1 },
+    1: { 0: -0.1, 1: -0.15, 2: -0.10 },
+    2: { 0: -0.1, 1: -0.15, 2: -0.20 },
   });
   const [particles, setParticles] = useState<Particle[]>([]);
   const [dt, setDt] = useState(0.01);

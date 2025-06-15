@@ -31,25 +31,22 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
     return (h / 2 - cy) * 2 / h;
   };
 
-  useEffect(() => {
+  const drawCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 150;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw horizontal axis
+    // Axis
     ctx.strokeStyle = '#aaa';
     ctx.beginPath();
     ctx.moveTo(0, canvas.height / 2);
     ctx.lineTo(canvas.width, canvas.height / 2);
     ctx.stroke();
 
-    // Draw curve
+    // Curve
     ctx.beginPath();
     ctx.strokeStyle = '#007bff';
     points.forEach((p, i) => {
@@ -59,7 +56,7 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
     });
     ctx.stroke();
 
-    // Draw points
+    // Points
     points.forEach((p) => {
       const x = xToCanvas(canvas, p.x);
       const y = forceToY(canvas, p.y);
@@ -68,6 +65,23 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
       ctx.arc(x, y, 6, 0, 2 * Math.PI);
       ctx.fill();
     });
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      drawCanvas();
+    };
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    resize();
+
+    return () => observer.disconnect();
   }, [points]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -97,36 +111,32 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
 
-    //const updated = points.map((p, i, arr) => {
     const updated = points.map((p, _, arr) => {
       if (p.id !== dragId) return p;
 
-      // Determine editable axes
       let newX = p.x;
       let newY = p.y;
 
       const rawX = canvasToX(canvas, mx);
       const rawY = canvasToForce(canvas, my);
 
-      // X-axis logic
       if (p.id === 'r1') {
-        const max = arr[2].x - MIN_SPACING; // f2
+        const max = arr[2].x - MIN_SPACING;
         newX = Math.max(MIN_SPACING, Math.min(rawX, max));
       } else if (p.id === 'f2') {
-        const min = arr[1].x + MIN_SPACING; // r1
-        const max = arr[3].x - MIN_SPACING; // r3
+        const min = arr[1].x + MIN_SPACING;
+        const max = arr[3].x - MIN_SPACING;
         newX = Math.max(min, Math.min(rawX, max));
       } else if (p.id === 'r3') {
         const min = arr[2].x + MIN_SPACING;
         newX = Math.max(min, Math.min(rawX, 1));
       }
 
-      // Y-axis logic
       if (p.id === 'f0') {
-        newX = 0; // fixed
+        newX = 0;
         newY = Math.max(-1, Math.min(1, rawY));
       } else if (p.id === 'r1' || p.id === 'r3') {
-        newY = 0; // locked
+        newY = 0;
       } else if (p.id === 'f2') {
         newY = Math.max(-1, Math.min(1, rawY));
       }
@@ -153,3 +163,4 @@ const ForceEditor: React.FC<ForceEditorProps> = ({ points, onChange }) => {
 };
 
 export default ForceEditor;
+

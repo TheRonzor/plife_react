@@ -18,10 +18,6 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
     onChange(rowId, colId, value);
   };
 
-  console.clear();
-  console.log(matrix);
-  console.log(types);
-
   return (
     <div>
       <div
