@@ -1,4 +1,5 @@
 // ./src/simulation/SimulationEngine.ts
+
 export interface Particle {
   id: number;
   type: number;
@@ -17,7 +18,7 @@ export interface ControlPoint {
 
 export class SimulationEngine {
   particles: Particle[] = [];
-  interactionMatrix: number[][] = [];
+  interactionMatrix: Record<number, Record<number, number>> = {};
   controlPoints: ControlPoint[] = [];
   dt: number = 0.01;
   goo: number = 0.1;
@@ -28,7 +29,7 @@ export class SimulationEngine {
     this.particles = particles;
   }
 
-  setInteractionMatrix(matrix: number[][]) {
+  setInteractionMatrix(matrix: Record<number, Record<number, number>>) {
     this.interactionMatrix = matrix;
   }
 
@@ -50,7 +51,6 @@ export class SimulationEngine {
 
   step() {
     const N = this.particles.length;
-    //const forces: [number, number][] = Array(N).fill([0, 0]).map(() => [0, 0]);
     const forces: [number, number][] = Array.from({ length: N }, () => [0, 0]);
 
     for (let i = 0; i < N; i++) {
@@ -60,31 +60,28 @@ export class SimulationEngine {
         if (i === j) continue;
 
         const pj = this.particles[j];
-
         const [dx, dy] = this.torusVector(pi.x, pi.y, pj.x, pj.y);
-        
-        // Different distance functions here for now!
         const dist = Math.sqrt(dx * dx + dy * dy);
-        //const dist = Math.abs(dx * dx + dy * dy);
-        // const dist = dx * dx + dy * dy;
-        
         if (dist === 0) continue;
 
         const fx = dx / dist;
         const fy = dy / dist;
 
-        const r1 = this.controlPoints[1].x;
-        const r3 = this.controlPoints[3].x;
+        const r1 = this.controlPoints.find(p => p.id === 'r1')?.x ?? 0.05;
+        const r3 = this.controlPoints.find(p => p.id === 'r3')?.x ?? 0.6;
         const baseForce = this.forceFunction(dist);
 
-        const interactionScale = (r1 < dist && dist < r3) ? this.interactionMatrix[pi.type]?.[pj.type] ?? 0 : 1;
+        const interactionScale =
+          r1 < dist && dist < r3
+            ? this.interactionMatrix[pi.type]?.[pj.type] ?? 0
+            : 1;
+
         const forceMag = baseForce * interactionScale;
         forces[i][0] += forceMag * fx;
         forces[i][1] += forceMag * fy;
       }
     }
 
-    // Apply forces
     for (let i = 0; i < N; i++) {
       const p = this.particles[i];
       const [fx, fy] = forces[i];
@@ -119,8 +116,11 @@ export class SimulationEngine {
       const p1 = points[i];
       const p2 = points[i + 1];
 
+      const dx = p2.x - p1.x;
+      if (dx === 0) return p1.y;
+
       if (dist <= p2.x) {
-        const t = (dist - p1.x) / (p2.x - p1.x);
+        const t = (dist - p1.x) / dx;
         return p1.y + t * (p2.y - p1.y);
       }
     }

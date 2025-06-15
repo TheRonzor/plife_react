@@ -8,12 +8,6 @@ import SimulationControls from './components/SimulationControls';
 import ParticleTypeEditor from './components/ParticleTypeEditor';
 import { type Particle, type ControlPoint } from "./simulation/SimulationEngine";
 
-// For initialiation, not yet implemented
-// const INIT_NUM_TYPES = 20;
-// const MAX_NUM_TYPES = 100;
-// const INIT_NUM_EACH = 50;
-
-
 const defaultControlPoints: ControlPoint[] = [
   { id: 'f0', x: 0, y: -1, fixed: true },
   { id: 'r1', x: 0.05, y: 0 },
@@ -24,6 +18,7 @@ const defaultControlPoints: ControlPoint[] = [
 function App() {
   const [controlPoints, setControlPoints] = useState<ControlPoint[]>(defaultControlPoints);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [nextId, setNextId] = useState(3);
   const [particleTypes, setParticleTypes] = useState(() =>
     Array.from({ length: 3 }, (_, i) => ({
       id: i,
@@ -32,14 +27,15 @@ function App() {
       count: 20,
     }))
   );
-  const [interactionMatrix, setInteractionMatrix] = useState<number[][]>(
-    Array.from({ length: 3 }, () => Array(3).fill(0))
-  );
+  const [interactionMatrix, setInteractionMatrix] = useState<Record<number, Record<number, number>>>({
+    0: { 0: 0, 1: 0, 2: 0 },
+    1: { 0: 0, 1: 0, 2: 0 },
+    2: { 0: 0, 1: 0, 2: 0 },
+  });
   const [particles, setParticles] = useState<Particle[]>([]);
   const [dt, setDt] = useState(0.01);
   const [goo, setGoo] = useState(0.1);
   const [isRunning, setIsRunning] = useState(true);
-  const [nextId, setNextId] = useState(3);
 
   useEffect(() => {
     setParticles(prev => {
@@ -47,7 +43,7 @@ function App() {
       const updated: Particle[] = [];
 
       particleTypes.forEach((type, index) => {
-        const existing = prev.filter(p => p.type === index);
+        const existing = prev.filter(p => p.type === type.id);
         const needed = type.count;
 
         if (existing.length === needed) {
@@ -55,7 +51,7 @@ function App() {
         } else if (existing.length < needed) {
           const newParticles = Array.from({ length: needed - existing.length }, () => ({
             id: idCounter++,
-            type: index,
+            type: type.id,
             x: Math.random(),
             y: Math.random(),
             vx: 0,
@@ -71,22 +67,40 @@ function App() {
     });
   }, [particleTypes]);
 
-  const handleMatrixChange = (row: number, col: number, value: number) => {
+  const handleMatrixChange = (rowId: number, colId: number, value: number) => {
+    setInteractionMatrix(prev => ({
+      ...prev,
+      [rowId]: {
+        ...prev[rowId],
+        [colId]: value
+      }
+    }));
+  };
+
+  const randomizeMatrix = () => {
     setInteractionMatrix(prev => {
-      const updated = prev.map(r => [...r]);
-      updated[row][col] = value;
+      const updated: Record<number, Record<number, number>> = {};
+      for (const row of particleTypes) {
+        updated[row.id] = {};
+        for (const col of particleTypes) {
+          updated[row.id][col.id] = parseFloat((Math.random() * 2 - 1).toFixed(2));
+        }
+      }
       return updated;
     });
   };
 
-  const randomizeMatrix = () => {
-    setInteractionMatrix(matrix =>
-      matrix.map(row => row.map(() => parseFloat((Math.random() * 2 - 1).toFixed(2))))
-    );
-  };
-
   const resetMatrix = () => {
-    setInteractionMatrix(matrix => matrix.map(row => row.map(() => 0)));
+    setInteractionMatrix(prev => {
+      const updated: Record<number, Record<number, number>> = {};
+      for (const row of particleTypes) {
+        updated[row.id] = {};
+        for (const col of particleTypes) {
+          updated[row.id][col.id] = 0;
+        }
+      }
+      return updated;
+    });
   };
 
   const addType = () => {
@@ -99,30 +113,30 @@ function App() {
     const randomColor = `#${toHex(randomChannel())}${toHex(randomChannel())}${toHex(randomChannel())}`;
     const randomSize = Math.floor(Math.random() * 6) + 6;
 
-    const newTypes = [
-      ...particleTypes,
-      { id: newId, color: randomColor, size: randomSize, count: 20 },
-    ];
-
-    setParticleTypes(newTypes);
+    setParticleTypes(prev => [...prev, { id: newId, color: randomColor, size: randomSize, count: 20 }]);
     setInteractionMatrix(prev => {
-      const next = prev.map(row => [...row, 0]);
-      next.push(new Array(newId + 1).fill(0));
-      return next;
+      const updated = { ...prev };
+      updated[newId] = {};
+      for (const type of particleTypes) {
+        updated[type.id] = { ...updated[type.id], [newId]: 0 };
+        updated[newId][type.id] = 0;
+      }
+      updated[newId][newId] = 0;
+      return updated;
     });
   };
 
   const removeType = (id: number) => {
     if (particleTypes.length <= 1) return;
-    const index = particleTypes.findIndex(t => t.id === id);
-    const newTypes = particleTypes.filter(t => t.id !== id);
-    setParticleTypes(newTypes);
-
-    setInteractionMatrix(prev =>
-      prev
-        .filter((_, i) => i !== index)
-        .map(row => row.filter((_, j) => j !== index))
-    );
+    setParticleTypes(prev => prev.filter(t => t.id !== id));
+    setInteractionMatrix(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      for (const row of Object.values(updated)) {
+        delete row[id];
+      }
+      return updated;
+    });
   };
 
   return (

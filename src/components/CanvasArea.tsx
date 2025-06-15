@@ -10,7 +10,7 @@ interface ParticleTypeInfo {
 
 interface CanvasAreaProps {
   particles: Particle[];
-  interactionMatrix: number[][];
+  interactionMatrix: Record<number, Record<number, number>>;
   controlPoints: ControlPoint[];
   dt: number;
   goo: number;
@@ -64,7 +64,7 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       simParticles.forEach(p => {
-        const type = particleTypeProperties[p.type];
+        const type = particleTypeProperties.find(t => t.id === p.type);
         const radius = type?.size ?? 5;
         const color = type?.color ?? 'red';
 
@@ -81,17 +81,17 @@ export const CanvasArea: React.FC<CanvasAreaProps> = ({
     return () => cancelAnimationFrame(frameId);
   }, [isRunning, particleTypeProperties]);
 
-  // return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
-  return <canvas 
-            ref={canvasRef} 
-            style={{ 
-              width: "100%", 
-              height: "100%",
-              // aspectRatio: "1 / 1",
-              border: "10px solid var(--border-color)",
-              display: "block",
-              borderRadius: "5px",
-              backgroundColor: '#000000'
-            }}
-          />;
+  return (
+    <canvas 
+      ref={canvasRef} 
+      style={{ 
+        width: "100%", 
+        height: "100%",
+        border: "10px solid var(--border-color)",
+        display: "block",
+        borderRadius: "5px",
+        backgroundColor: '#000000'
+      }}
+    />
+  );
 };

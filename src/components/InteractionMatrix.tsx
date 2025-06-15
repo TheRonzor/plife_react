@@ -9,21 +9,18 @@ interface ParticleType {
 
 interface InteractionMatrixProps {
   types: ParticleType[];
-  matrix: number[][];
-  onChange: (row: number, col: number, value: number) => void;
+  matrix: Record<number, Record<number, number>>;
+  onChange: (rowId: number, colId: number, value: number) => void;
 }
 
 const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, onChange }) => {
-  const handleSliderChange = (row: number, col: number, value: number) => {
-    onChange(row, col, value);
+  const handleSliderChange = (rowId: number, colId: number, value: number) => {
+    onChange(rowId, colId, value);
   };
 
-  //====
-  console.log(matrix.length);
-  console.log(matrix[0].length);
+  console.clear();
   console.log(matrix);
   console.log(types);
-  //====
 
   return (
     <div>
@@ -55,7 +52,7 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
         ))}
 
         {/* Rows */}
-        {types.map((row, i) => (
+        {types.map((row) => (
           <React.Fragment key={`row-${row.id}`}>
             {/* Row header */}
             <div>
@@ -71,18 +68,18 @@ const InteractionMatrix: React.FC<InteractionMatrixProps> = ({ types, matrix, on
             </div>
 
             {/* Matrix sliders with value labels */}
-            {types.map((_, j) => (
-              <div key={`cell-${i}-${j}`} style={{ width: '100%', textAlign: 'center' }}>
+            {types.map((col) => (
+              <div key={`cell-${row.id}-${col.id}`} style={{ width: '100%', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.8rem', marginBottom: '0.25rem' }}>
-                  {matrix[i][j].toFixed(2)}
+                  {(matrix[row.id]?.[col.id] ?? 0).toFixed(2)}
                 </div>
                 <input
                   type="range"
                   min={-1}
                   max={1}
                   step={0.01}
-                  value={matrix[i][j]}
-                  onChange={(e) => handleSliderChange(i, j, parseFloat(e.target.value))}
+                  value={matrix[row.id]?.[col.id] ?? 0}
+                  onChange={(e) => handleSliderChange(row.id, col.id, parseFloat(e.target.value))}
                   style={{ width: '100%' }}
                 />
               </div>
