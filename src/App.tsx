@@ -24,7 +24,7 @@ function App() {
       id: i,
       color: ['#ff4d4d', '#c5c515', '#4d4dff'][i],
       size: [2, 5, 15][i],
-      count: [200, 100, 10][i],
+      count: [500, 100, 10][i],
     }))
   );
   const [interactionMatrix, setInteractionMatrix] = useState<Record<number, Record<number, number>>>({
@@ -42,7 +42,7 @@ function App() {
       let idCounter = prev.length > 0 ? Math.max(...prev.map(p => p.id)) + 1 : 0;
       const updated: Particle[] = [];
 
-      particleTypes.forEach((type, index) => {
+      particleTypes.forEach((type, _) => {
         const existing = prev.filter(p => p.type === type.id);
         const needed = type.count;
 
@@ -78,7 +78,7 @@ function App() {
   };
 
   const randomizeMatrix = () => {
-    setInteractionMatrix(prev => {
+    setInteractionMatrix(_ => {
       const updated: Record<number, Record<number, number>> = {};
       for (const row of particleTypes) {
         updated[row.id] = {};
@@ -91,7 +91,7 @@ function App() {
   };
 
   const resetMatrix = () => {
-    setInteractionMatrix(prev => {
+    setInteractionMatrix(_ => {
       const updated: Record<number, Record<number, number>> = {};
       for (const row of particleTypes) {
         updated[row.id] = {};
